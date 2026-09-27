@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {"key": "project", "type": "Project", "name": "知识图谱 Agent"},
+    {"key": "gateway", "type": "Component", "name": "OpenClaw Gateway"},
+    {"key": "deepseek", "type": "Technology", "name": "DeepSeek Flash"},
+    {"key": "design", "type": "Document", "name": "design.md"}
+  ],
+  "relations": [
+    {
+      "source": "project",
+      "predicate": "USES",
+      "target": "deepseek",
+      "confidence": 0.98,
+      "evidence": {
+        "document_id": "design.md",
+        "quote": "技术上可以用 DeepSeek：实体关系抽取和回答。",
+        "source_uri": "design.md"
+      }
+    },
+    {
+      "source": "gateway",
+      "predicate": "PART_OF",
+      "target": "project",
+      "confidence": 0.8
+    },
+    {
+      "source": "project",
+      "predicate": "DOCUMENTED_IN",
+      "target": "design",
+      "confidence": 1.0
+    }
+  ]
+}
+

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>知识图谱 Agent</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">KNOWLEDGE GRAPH WORKBENCH</p>
+          <h1>知识图谱 Agent</h1>
+        </div>
+        <div class="health"><span id="healthDot"></span><span id="healthText">正在连接</span></div>
+      </header>
+
+      <nav class="tabs" aria-label="功能导航">
+        <button class="tab active" data-view="overview">总览</button>
+        <button class="tab" data-view="ingest">导入文档</button>
+        <button class="tab" data-view="review">审核候选</button>
+        <button class="tab" data-view="graph">图谱浏览</button>
+        <button class="tab" data-view="ask">证据问答</button>
+      </nav>
+
+      <main>
+        <section id="overview" class="view active">
+          <div class="hero">
+            <div>
+              <p class="eyebrow">TRACEABLE BY DESIGN</p>
+              <h2>把散落的文字，变成<br />可核验的知识关系。</h2>
+              <p class="hero-copy">DeepSeek 负责提出候选事实，人负责做最终判断。每一条进入图谱的关系都会保留原文证据。</p>
+              <button class="primary go-to" data-target="ingest">开始导入文档</button>
+            </div>
+            <div class="flow-card">
+              <div><b>01</b><span>上传文本</span></div>
+              <i>→</i>
+              <div><b>02</b><span>AI 抽取</span></div>
+              <i>→</i>
+              <div><b>03</b><span>人工审核</span></div>
+              <i>→</i>
+              <div><b>04</b><span>正式入图</span></div>
+            </div>
+          </div>
+          <div id="stats" class="stats"></div>
+          <div class="panel compact">
+            <div>
+              <p class="eyebrow">QUICK START</p>
+              <h3>推荐工作顺序</h3>
+            </div>
+            <ol class="steps">
+              <li>导入 Markdown 或 TXT 文档</li>
+              <li>逐条核对实体、关系与证据</li>
+              <li>接受可靠事实，拒绝错误事实</li>
+              <li>在图谱浏览页查看正式知识</li>
+            </ol>
+          </div>
+        </section>
+
+        <section id="ingest" class="view">
+          <div class="section-heading">
+            <div><p class="eyebrow">DOCUMENT INGESTION</p><h2>导入文档</h2></div>
+            <span class="badge">不会自动写入正式图谱</span>
+          </div>
+          <form id="ingestForm" class="panel form-panel">
+            <label class="file-drop" for="fileInput">
+              <input id="fileInput" type="file" accept=".txt,.md,text/plain,text/markdown" />
+              <strong>选择 TXT 或 Markdown 文件</strong>
+              <span id="fileHint">也可以直接在下方粘贴文本</span>
+            </label>
+            <div class="field-row">
+              <label>文档编号<input id="documentId" required placeholder="例如：项目设计说明-v1" /></label>
+              <label>来源地址（可选）<input id="sourceUri" placeholder="文件路径或网页地址" /></label>
+            </div>
+            <label>文档正文<textarea id="documentText" required rows="13" placeholder="在这里粘贴需要抽取的内容……"></textarea></label>
+            <div class="actions">
+              <button type="submit" class="primary" id="ingestButton">开始抽取候选事实</button>
+              <span id="ingestResult" class="result"></span>
+            </div>
+          </form>
+        </section>
+
+        <section id="review" class="view">
+          <div class="section-heading">
+            <div><p class="eyebrow">HUMAN IN THE LOOP</p><h2>审核候选事实</h2></div>
+            <div class="segmented" id="statusFilter">
+              <button class="active" data-status="pending">待审核</button>
+              <button data-status="accepted">已接受</button>
+              <button data-status="rejected">已拒绝</button>
+            </div>
+          </div>
+          <div id="candidateList" class="candidate-list"></div>
+        </section>
+
+        <section id="graph" class="view">
+          <div class="section-heading">
+            <div><p class="eyebrow">ACCEPTED KNOWLEDGE</p><h2>图谱浏览</h2></div>
+            <button id="refreshGraph" class="secondary">刷新图谱</button>
+          </div>
+          <div class="graph-layout">
+            <div class="panel graph-panel">
+              <svg id="graphCanvas" role="img" aria-label="知识图谱"></svg>
+              <div id="graphEmpty" class="empty hidden">还没有正式关系。请先接受候选事实。</div>
+            </div>
+            <aside class="panel detail-panel">
+              <p class="eyebrow">RELATION DETAILS</p>
+              <div id="relationDetail" class="empty">点击图中的关系查看证据</div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="ask" class="view">
+          <div class="section-heading">
+            <div><p class="eyebrow">EVIDENCE-GROUNDED QA</p><h2>向图谱提问</h2></div>
+            <span class="badge">只使用已审核事实</span>
+          </div>
+          <div class="ask-layout">
+            <form id="questionForm" class="panel question-panel">
+              <label for="questionInput">你的问题</label>
+              <textarea id="questionInput" required maxlength="1000" rows="5" placeholder="例如：知识图谱 Agent 使用了哪些技术？依据是什么？"></textarea>
+              <div class="question-samples">
+                <span>试着问：</span>
+                <button type="button">知识图谱 Agent 使用了哪些技术？</button>
+                <button type="button">哪些模块依赖 DeepSeek？</button>
+              </div>
+              <button id="askButton" type="submit" class="primary">根据图谱回答</button>
+            </form>
+            <section class="panel answer-panel">
+              <p class="eyebrow">ANSWER</p>
+              <div id="answerContent" class="answer-placeholder">回答会显示在这里，并附上所使用的正式关系和原文证据。</div>
+              <div id="answerCitations"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
